@@ -18,9 +18,10 @@ func TestHandlePost(t *testing.T) {
 
 	handler := NewShortenerHandler(shortenerService)
 
-	originalURL := "https://practicum.yandex.ru/"
+	originalURL := "http://dehoy.ru/n1ldm7e8bh88/gxn0xloupjkjol/veghgaewpnuop"
 	reqBody := bytes.NewBufferString(originalURL)
 	req := httptest.NewRequest(http.MethodPost, "/", reqBody)
+	req.Header.Set("Content-Type", "text/plain")
 	rec := httptest.NewRecorder()
 
 	c, _ := gin.CreateTestContext(rec)
@@ -32,9 +33,18 @@ func TestHandlePost(t *testing.T) {
 		t.Errorf("Expected status %d; got %d", http.StatusCreated, rec.Code)
 	}
 
-	expectedShortURL := "http://localhost:8080/"
+	expectedShortURL := "http://" + req.Host + "/"
 	if !bytes.HasPrefix(rec.Body.Bytes(), []byte(expectedShortURL)) {
 		t.Errorf("Expected body to start with %s; got %s", expectedShortURL, rec.Body.String())
+	}
+
+	shortID := string(bytes.TrimPrefix(rec.Body.Bytes(), []byte(expectedShortURL)))
+	storedURL, exists := urlStorage.Get(shortID)
+	if !exists {
+		t.Errorf("Expected URL to be stored in storage, but it was not found")
+	}
+	if storedURL != originalURL {
+		t.Errorf("Expected stored URL to be %s; got %s", originalURL, storedURL)
 	}
 }
 

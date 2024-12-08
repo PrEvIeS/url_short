@@ -4,6 +4,7 @@ import (
 	"crypto/rand"
 	"encoding/base64"
 	"github.com/PrEvIeS/url_short/internal/app/repository"
+	"log"
 )
 
 type ShortenerService struct {
@@ -16,14 +17,20 @@ func NewShortenerService(repo repository.URLRepository) *ShortenerService {
 
 func (s *ShortenerService) CreateShortURL(originalURL string) (string, error) {
 	shortID := generateShortID(8)
+	log.Printf("Generated short ID: %s", shortID)
+
 	err := s.repo.SaveURL(shortID, originalURL)
 	if err != nil {
+		log.Printf("Failed to save URL: %v", err)
 		return "", err
 	}
+
+	log.Printf("Saved URL: %s with short ID: %s", originalURL, shortID)
 	return shortID, nil
 }
 
 func (s *ShortenerService) GetOriginalURL(shortID string) (string, error) {
+	log.Printf("Fetching original URL for short ID: %s", shortID)
 	return s.repo.GetURL(shortID)
 }
 

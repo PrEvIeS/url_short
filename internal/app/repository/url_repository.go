@@ -3,6 +3,7 @@ package repository
 import (
 	"errors"
 	"github.com/PrEvIeS/url_short/internal/pkg/storage"
+	"log"
 )
 
 type URLRepository interface {
@@ -19,13 +20,17 @@ func NewURLRepository(storage storage.Storage) *URLRepositoryImpl {
 }
 
 func (r *URLRepositoryImpl) SaveURL(shortID, originalURL string) error {
+	log.Printf("Saving URL: %s with short ID: %s", originalURL, shortID)
 	return r.storage.Set(shortID, originalURL)
 }
 
 func (r *URLRepositoryImpl) GetURL(shortID string) (string, error) {
+	log.Printf("Fetching URL for short ID: %s", shortID)
 	url, exists := r.storage.Get(shortID)
 	if !exists {
+		log.Printf("URL not found for short ID: %s", shortID)
 		return "", errors.New("URL not found")
 	}
+	log.Printf("Fetched URL: %s for short ID: %s", url, shortID)
 	return url, nil
 }

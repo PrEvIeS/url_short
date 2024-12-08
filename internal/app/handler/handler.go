@@ -1,8 +1,10 @@
 package handler
 
 import (
+	"bytes"
 	"github.com/PrEvIeS/url_short/internal/app/service"
 	"github.com/gin-gonic/gin"
+	"log"
 	"net/http"
 )
 
@@ -15,14 +17,21 @@ func NewShortenerHandler(service *service.ShortenerService) *ShortenerHandler {
 }
 
 func (h *ShortenerHandler) HandlePost(c *gin.Context) {
-	var requestBody string
+	requestBody := c.Request.Body
 
-	if err := c.ShouldBind(&requestBody); err != nil {
+	if requestBody == nil {
 		c.String(http.StatusBadRequest, "URL is required")
 		return
 	}
 
-	shortID, err := h.service.CreateShortURL(requestBody)
+	buf := new(bytes.Buffer)
+	_, err := buf.ReadFrom(requestBody)
+	if err != nil {
+		return
+	}
+	originalURL := buf.String()
+
+	shortID, err := h.service.CreateShortURL(originalURL)
 	if err != nil {
 		c.String(http.StatusInternalServerError, "Failed to create short URL")
 		return
@@ -30,6 +39,8 @@ func (h *ShortenerHandler) HandlePost(c *gin.Context) {
 
 	shortURL := "http://" + c.Request.Host + "/" + shortID
 	c.String(http.StatusCreated, shortURL)
+
+	log.Printf("Created short URL: %s", shortID)
 }
 
 func (h *ShortenerHandler) HandleGet(c *gin.Context) {
@@ -42,4 +53,6 @@ func (h *ShortenerHandler) HandleGet(c *gin.Context) {
 	}
 
 	c.Redirect(http.StatusTemporaryRedirect, originalURL)
+
+	log.Printf("Expanded short URL: %s", shortID)
 }
