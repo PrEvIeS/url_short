@@ -13,8 +13,8 @@ type Config struct {
 func NewConfig() *Config {
 	config := &Config{}
 
-	pflag.StringVarP(&config.ServerAddress, "address", "a", "localhost:8080", "Адрес запуска HTTP-сервера")
-	pflag.StringVarP(&config.BaseURL, "base-url", "b", "localhost:8080", "Базовый адрес результирующего сокращённого URL")
+	pflag.StringVarP(&config.ServerAddress, "address", "a", "http://localhost:8080", "Адрес запуска HTTP-сервера")
+	pflag.StringVarP(&config.BaseURL, "base-url", "b", "http://localhost:8080", "Базовый адрес результирующего сокращённого URL")
 
 	pflag.Parse()
 
