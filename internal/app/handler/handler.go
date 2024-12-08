@@ -2,6 +2,7 @@ package handler
 
 import (
 	"bytes"
+	"github.com/PrEvIeS/url_short/internal/app/config"
 	"github.com/PrEvIeS/url_short/internal/app/service"
 	"github.com/gin-gonic/gin"
 	"log"
@@ -10,10 +11,11 @@ import (
 
 type ShortenerHandler struct {
 	service *service.ShortenerService
+	config  *config.Config
 }
 
-func NewShortenerHandler(service *service.ShortenerService) *ShortenerHandler {
-	return &ShortenerHandler{service: service}
+func NewShortenerHandler(service *service.ShortenerService, cfg *config.Config) *ShortenerHandler {
+	return &ShortenerHandler{service: service, config: cfg}
 }
 
 func (h *ShortenerHandler) HandlePost(c *gin.Context) {
@@ -37,7 +39,7 @@ func (h *ShortenerHandler) HandlePost(c *gin.Context) {
 		return
 	}
 
-	shortURL := "http://" + c.Request.Host + "/" + shortID
+	shortURL := h.config.BaseUrl + "/" + shortID
 	c.String(http.StatusCreated, shortURL)
 
 	log.Printf("Created short URL: %s", shortID)

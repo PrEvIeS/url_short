@@ -16,7 +16,7 @@ func TestHandlePost(t *testing.T) {
 	urlRepo := repository.NewURLRepository(urlStorage)
 	shortenerService := service.NewShortenerService(urlRepo)
 
-	handler := NewShortenerHandler(shortenerService)
+	handler := NewShortenerHandler(shortenerService, nil)
 
 	originalURL := "http://dehoy.ru/n1ldm7e8bh88/gxn0xloupjkjol/veghgaewpnuop"
 	reqBody := bytes.NewBufferString(originalURL)
@@ -60,7 +60,7 @@ func TestHandleGet(t *testing.T) {
 		t.Fatalf("Failed to set URL in storage: %v", err)
 	}
 
-	handler := NewShortenerHandler(shortenerService)
+	handler := NewShortenerHandler(shortenerService, nil)
 
 	req := httptest.NewRequest(http.MethodGet, "/"+shortID, nil)
 	rec := httptest.NewRecorder()
