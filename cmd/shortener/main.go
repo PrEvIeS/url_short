@@ -7,7 +7,6 @@ import (
 	"github.com/PrEvIeS/url_short/internal/app/server"
 	"github.com/PrEvIeS/url_short/internal/app/service"
 	"github.com/PrEvIeS/url_short/internal/pkg/storage"
-	"net/http"
 )
 
 func main() {
@@ -22,7 +21,5 @@ func main() {
 	app := server.NewServer(shortenerHandler)
 
 	fmt.Println("Starting server on :8080")
-	if err := http.ListenAndServe(":8080", app); err != nil {
-		fmt.Println("Failed to start server:", err)
-	}
+	app.Run(":8080")
 }
