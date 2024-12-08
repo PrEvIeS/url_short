@@ -14,6 +14,7 @@ func NewServer(handler *handler.ShortenerHandler) *Server {
 }
 
 func (s *Server) Run(addr string) {
+	gin.SetMode(gin.ReleaseMode)
 	r := gin.Default()
 
 	r.POST("/", s.handler.HandlePost)
