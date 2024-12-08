@@ -4,7 +4,7 @@ import (
 	"crypto/rand"
 	"encoding/base64"
 	"fmt"
-	"io/ioutil"
+	"io"
 	"net/http"
 	"strings"
 )
@@ -23,7 +23,7 @@ func generateShortID(length int) string {
 func handler(w http.ResponseWriter, r *http.Request) {
 	switch r.Method {
 	case http.MethodPost:
-		body, err := ioutil.ReadAll(r.Body)
+		body, err := io.ReadAll(r.Body)
 		if err != nil {
 			http.Error(w, "Failed to read request body", http.StatusBadRequest)
 			return
@@ -42,7 +42,10 @@ func handler(w http.ResponseWriter, r *http.Request) {
 
 		w.Header().Set("Content-Type", "text/plain")
 		w.WriteHeader(http.StatusCreated)
-		w.Write([]byte(shortURL))
+		_, err = w.Write([]byte(shortURL))
+		if err != nil {
+			return
+		}
 
 	case http.MethodGet:
 		shortID := strings.TrimPrefix(r.URL.Path, "/")
