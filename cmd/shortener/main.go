@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"github.com/PrEvIeS/url_short/internal/app/config"
 	"github.com/PrEvIeS/url_short/internal/app/handler"
 	"github.com/PrEvIeS/url_short/internal/app/repository"
@@ -23,6 +22,5 @@ func main() {
 
 	app := server.NewServer(shortenerHandler, cfg)
 
-	fmt.Println("Starting server on :8080")
 	app.Run(cfg.ServerAddress)
 }

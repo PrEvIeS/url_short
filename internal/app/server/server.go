@@ -24,6 +24,6 @@ func (s *Server) Run(addr string) {
 
 	err := r.Run(addr)
 	if err != nil {
-		return
+		panic(err)
 	}
 }
