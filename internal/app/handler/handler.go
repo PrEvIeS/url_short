@@ -2,11 +2,12 @@ package handler
 
 import (
 	"bytes"
+	"log"
+	"net/http"
+
 	"github.com/PrEvIeS/url_short/internal/app/config"
 	"github.com/PrEvIeS/url_short/internal/app/service"
 	"github.com/gin-gonic/gin"
-	"log"
-	"net/http"
 )
 
 type ShortenerHandler struct {

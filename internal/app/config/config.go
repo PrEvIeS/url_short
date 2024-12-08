@@ -1,9 +1,10 @@
 package config
 
 import (
+	"log"
+
 	"github.com/caarlos0/env/v11"
 	"github.com/spf13/pflag"
-	"log"
 )
 
 type Config struct {
@@ -18,8 +19,20 @@ func NewConfig() *Config {
 		log.Fatal(err)
 	}
 
-	pflag.StringVarP(&config.ServerAddress, "address", "a", "localhost:8080", "Адрес запуска HTTP-сервера")
-	pflag.StringVarP(&config.BaseURL, "base-url", "b", "http://localhost:8080", "Базовый адрес результирующего сокращённого URL")
+	pflag.StringVarP(
+		&config.ServerAddress,
+		"address",
+		"a",
+		"localhost:8080",
+		"Адрес запуска HTTP-сервера",
+	)
+	pflag.StringVarP(
+		&config.BaseURL,
+		"base-url",
+		"b",
+		"http://localhost:8080",
+		"Базовый адрес результирующего сокращённого URL",
+	)
 
 	pflag.Parse()
 

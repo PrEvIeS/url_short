@@ -2,14 +2,15 @@ package handler
 
 import (
 	"bytes"
+	"net/http"
+	"net/http/httptest"
+	"testing"
+
 	"github.com/PrEvIeS/url_short/internal/app/config"
 	"github.com/PrEvIeS/url_short/internal/app/repository"
 	"github.com/PrEvIeS/url_short/internal/app/service"
 	"github.com/PrEvIeS/url_short/internal/pkg/storage"
 	"github.com/gin-gonic/gin"
-	"net/http"
-	"net/http/httptest"
-	"testing"
 )
 
 func TestHandlePost(t *testing.T) {
@@ -75,7 +76,7 @@ func TestHandleGet(t *testing.T) {
 
 	handler := NewShortenerHandler(shortenerService, cfg)
 
-	req := httptest.NewRequest(http.MethodGet, "/"+shortID, nil)
+	req := httptest.NewRequest(http.MethodGet, "/"+shortID, http.NoBody)
 	rec := httptest.NewRecorder()
 
 	c, _ := gin.CreateTestContext(rec)

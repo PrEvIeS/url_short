@@ -3,8 +3,9 @@ package service
 import (
 	"crypto/rand"
 	"encoding/base64"
-	"github.com/PrEvIeS/url_short/internal/app/repository"
 	"log"
+
+	"github.com/PrEvIeS/url_short/internal/app/repository"
 )
 
 type ShortenerService struct {
