@@ -18,17 +18,17 @@ func (h *ShortenerHandler) HandlePost(c *gin.Context) {
 	var requestBody string
 
 	if err := c.ShouldBind(&requestBody); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "URL is required"})
+		c.String(http.StatusBadRequest, "URL is required")
 		return
 	}
 
 	shortID, err := h.service.CreateShortURL(requestBody)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to create short URL"})
+		c.String(http.StatusInternalServerError, "Failed to create short URL")
 		return
 	}
 
-	shortURL := "http://localhost:8080/" + shortID
+	shortURL := "http://" + c.Request.Host + "/" + shortID
 	c.String(http.StatusCreated, shortURL)
 }
 
