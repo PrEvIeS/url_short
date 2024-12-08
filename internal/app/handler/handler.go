@@ -14,8 +14,8 @@ type ShortenerHandler struct {
 	config  *config.Config
 }
 
-func NewShortenerHandler(service *service.ShortenerService, cfg *config.Config) *ShortenerHandler {
-	return &ShortenerHandler{service: service, config: cfg}
+func NewShortenerHandler(service *service.ShortenerService, config *config.Config) *ShortenerHandler {
+	return &ShortenerHandler{service: service, config: config}
 }
 
 func (h *ShortenerHandler) HandlePost(c *gin.Context) {
@@ -39,7 +39,7 @@ func (h *ShortenerHandler) HandlePost(c *gin.Context) {
 		return
 	}
 
-	shortURL := h.config.BaseUrl + "/" + shortID
+	shortURL := h.config.BaseURL + "/" + shortID
 	c.String(http.StatusCreated, shortURL)
 
 	log.Printf("Created short URL: %s", shortID)

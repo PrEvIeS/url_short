@@ -2,6 +2,7 @@ package handler
 
 import (
 	"bytes"
+	"github.com/PrEvIeS/url_short/internal/app/config"
 	"github.com/PrEvIeS/url_short/internal/app/repository"
 	"github.com/PrEvIeS/url_short/internal/app/service"
 	"github.com/PrEvIeS/url_short/internal/pkg/storage"
@@ -12,11 +13,18 @@ import (
 )
 
 func TestHandlePost(t *testing.T) {
+	// Инициализация конфигурации
+	cfg := &config.Config{
+		ServerAddress: "localhost:8080",
+		BaseURL:       "http://localhost:8080",
+	}
+
+	// Инициализация хранилища и сервиса
 	urlStorage := storage.NewInMemoryStorage()
 	urlRepo := repository.NewURLRepository(urlStorage)
 	shortenerService := service.NewShortenerService(urlRepo)
 
-	handler := NewShortenerHandler(shortenerService, nil)
+	handler := NewShortenerHandler(shortenerService, cfg)
 
 	originalURL := "http://dehoy.ru/n1ldm7e8bh88/gxn0xloupjkjol/veghgaewpnuop"
 	reqBody := bytes.NewBufferString(originalURL)
@@ -33,7 +41,7 @@ func TestHandlePost(t *testing.T) {
 		t.Errorf("Expected status %d; got %d", http.StatusCreated, rec.Code)
 	}
 
-	expectedShortURL := "http://" + req.Host + "/"
+	expectedShortURL := cfg.BaseURL + "/"
 	if !bytes.HasPrefix(rec.Body.Bytes(), []byte(expectedShortURL)) {
 		t.Errorf("Expected body to start with %s; got %s", expectedShortURL, rec.Body.String())
 	}
@@ -49,6 +57,11 @@ func TestHandlePost(t *testing.T) {
 }
 
 func TestHandleGet(t *testing.T) {
+	cfg := &config.Config{
+		ServerAddress: "localhost:8080",
+		BaseURL:       "http://localhost:8080",
+	}
+
 	urlStorage := storage.NewInMemoryStorage()
 	urlRepo := repository.NewURLRepository(urlStorage)
 	shortenerService := service.NewShortenerService(urlRepo)
@@ -60,7 +73,7 @@ func TestHandleGet(t *testing.T) {
 		t.Fatalf("Failed to set URL in storage: %v", err)
 	}
 
-	handler := NewShortenerHandler(shortenerService, nil)
+	handler := NewShortenerHandler(shortenerService, cfg)
 
 	req := httptest.NewRequest(http.MethodGet, "/"+shortID, nil)
 	rec := httptest.NewRecorder()
