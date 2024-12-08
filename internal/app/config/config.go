@@ -14,7 +14,7 @@ func NewConfig() *Config {
 	config := &Config{}
 
 	pflag.StringVarP(&config.ServerAddress, "address", "a", "localhost:8080", "Адрес запуска HTTP-сервера")
-	pflag.StringVarP(&config.ServerAddress, "base-url", "b", "localhost:8080", "Адрес запуска HTTP-сервера")
+	pflag.StringVarP(&config.BaseUrl, "base-url", "b", "localhost:8080", "Адрес запуска HTTP-сервера")
 
 	pflag.Parse()
 
