@@ -1,3 +1,26 @@
 package main
 
-func main() {}
+import (
+	"github.com/PrEvIeS/url_short/internal/config"
+	"github.com/PrEvIeS/url_short/internal/handler"
+	"github.com/PrEvIeS/url_short/internal/pkg/storage"
+	"github.com/PrEvIeS/url_short/internal/repository"
+	"github.com/PrEvIeS/url_short/internal/server"
+	"github.com/PrEvIeS/url_short/internal/service"
+)
+
+func main() {
+	cfg := config.NewConfig()
+
+	urlStorage := storage.NewInMemoryStorage()
+
+	urlRepo := repository.NewURLRepository(urlStorage)
+
+	shortenerService := service.NewShortenerService(urlRepo)
+
+	shortenerHandler := handler.NewShortenerHandler(shortenerService, cfg)
+
+	app := server.NewServer(shortenerHandler, cfg)
+
+	app.Run(cfg.ServerAddress)
+}
