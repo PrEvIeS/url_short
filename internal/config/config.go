@@ -1,9 +1,9 @@
 package config
 
 import (
+	"github.com/caarlos0/env/v11"
 	"log"
 
-	"github.com/caarlos0/env/v11"
 	"github.com/spf13/pflag"
 )
 
@@ -15,31 +15,33 @@ type Config struct {
 func NewConfig() *Config {
 	config := &Config{}
 
-	if err := env.Parse(config); err != nil {
-		log.Println(err)
-	}
+	pflag.StringVarP(
+		&config.ServerAddress,
+		"address",
+		"a",
+		"localhost:8080",
+		"Адрес запуска HTTP-сервера",
+	)
+	pflag.StringVarP(
+		&config.BaseURL,
+		"base-url",
+		"b",
+		"http://localhost:8080",
+		"Базовый адрес результирующего сокращённого URL",
+	)
 
 	if config.ServerAddress == "" {
-		pflag.StringVarP(
-			&config.ServerAddress,
-			"address",
-			"a",
-			"localhost:8080",
-			"Адрес запуска HTTP-сервера",
-		)
+		config.ServerAddress = "localhost:8080"
 	}
-
 	if config.BaseURL == "" {
-		pflag.StringVarP(
-			&config.BaseURL,
-			"base-url",
-			"b",
-			"http://localhost:8080",
-			"Базовый адрес результирующего сокращённого URL",
-		)
+		config.BaseURL = "http://localhost:8080"
 	}
 
 	pflag.Parse()
+
+	if err := env.Parse(config); err != nil {
+		log.Println(err)
+	}
 
 	log.Printf("server address: %s", config.ServerAddress)
 	log.Printf("base url: %s", config.BaseURL)
