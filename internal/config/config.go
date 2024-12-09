@@ -19,20 +19,25 @@ func NewConfig() *Config {
 		log.Println(err)
 	}
 
-	pflag.StringVarP(
-		&config.ServerAddress,
-		"address",
-		"a",
-		"localhost:8080",
-		"Адрес запуска HTTP-сервера",
-	)
-	pflag.StringVarP(
-		&config.BaseURL,
-		"base-url",
-		"b",
-		"http://localhost:8080",
-		"Базовый адрес результирующего сокращённого URL",
-	)
+	if config.ServerAddress == "" {
+		pflag.StringVarP(
+			&config.ServerAddress,
+			"address",
+			"a",
+			"localhost:8080",
+			"Адрес запуска HTTP-сервера",
+		)
+	}
+
+	if config.BaseURL == "" {
+		pflag.StringVarP(
+			&config.BaseURL,
+			"base-url",
+			"b",
+			"http://localhost:8080",
+			"Базовый адрес результирующего сокращённого URL",
+		)
+	}
 
 	pflag.Parse()
 
