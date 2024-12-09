@@ -5,8 +5,9 @@ import (
 	"log"
 	"net/http"
 
-	"github.com/PrEvIeS/url_short/internal/app/config"
-	"github.com/PrEvIeS/url_short/internal/app/service"
+	"github.com/PrEvIeS/url_short/internal/config"
+	"github.com/PrEvIeS/url_short/internal/service"
+
 	"github.com/gin-gonic/gin"
 )
 
@@ -15,8 +16,8 @@ type ShortenerHandler struct {
 	config  *config.Config
 }
 
-func NewShortenerHandler(service *service.ShortenerService, config *config.Config) *ShortenerHandler {
-	return &ShortenerHandler{service: service, config: config}
+func NewShortenerHandler(shortenerService *service.ShortenerService, cfg *config.Config) *ShortenerHandler {
+	return &ShortenerHandler{service: shortenerService, config: cfg}
 }
 
 func (h *ShortenerHandler) HandlePost(c *gin.Context) {

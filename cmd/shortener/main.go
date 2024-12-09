@@ -1,12 +1,12 @@
 package main
 
 import (
-	"github.com/PrEvIeS/url_short/internal/app/config"
-	"github.com/PrEvIeS/url_short/internal/app/handler"
-	"github.com/PrEvIeS/url_short/internal/app/repository"
-	"github.com/PrEvIeS/url_short/internal/app/server"
-	"github.com/PrEvIeS/url_short/internal/app/service"
+	"github.com/PrEvIeS/url_short/internal/config"
+	"github.com/PrEvIeS/url_short/internal/handler"
 	"github.com/PrEvIeS/url_short/internal/pkg/storage"
+	"github.com/PrEvIeS/url_short/internal/repository"
+	"github.com/PrEvIeS/url_short/internal/server"
+	"github.com/PrEvIeS/url_short/internal/service"
 )
 
 func main() {

@@ -16,7 +16,7 @@ func NewConfig() *Config {
 	config := &Config{}
 
 	if err := env.Parse(config); err != nil {
-		log.Fatal(err)
+		log.Println(err)
 	}
 
 	pflag.StringVarP(

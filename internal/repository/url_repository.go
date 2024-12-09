@@ -2,6 +2,7 @@ package repository
 
 import (
 	"errors"
+	"fmt"
 	"log"
 
 	"github.com/PrEvIeS/url_short/internal/pkg/storage"
@@ -16,13 +17,17 @@ type URLRepositoryImpl struct {
 	storage storage.Storage
 }
 
-func NewURLRepository(storage storage.Storage) *URLRepositoryImpl {
-	return &URLRepositoryImpl{storage: storage}
+func NewURLRepository(srg storage.Storage) *URLRepositoryImpl {
+	return &URLRepositoryImpl{storage: srg}
 }
 
 func (r *URLRepositoryImpl) SaveURL(shortID, originalURL string) error {
 	log.Printf("Saving URL: %s with short ID: %s", originalURL, shortID)
-	return r.storage.Set(shortID, originalURL)
+	err := r.storage.Set(shortID, originalURL)
+	if err != nil {
+		return fmt.Errorf("saving URL: %w", err)
+	}
+	return nil
 }
 
 func (r *URLRepositoryImpl) GetURL(shortID string) (string, error) {

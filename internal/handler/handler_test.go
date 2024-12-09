@@ -6,9 +6,10 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	"github.com/PrEvIeS/url_short/internal/app/config"
-	"github.com/PrEvIeS/url_short/internal/app/repository"
-	"github.com/PrEvIeS/url_short/internal/app/service"
+	"github.com/PrEvIeS/url_short/internal/config"
+	"github.com/PrEvIeS/url_short/internal/repository"
+	"github.com/PrEvIeS/url_short/internal/service"
+
 	"github.com/PrEvIeS/url_short/internal/pkg/storage"
 	"github.com/gin-gonic/gin"
 )
