@@ -33,7 +33,7 @@ func NewConfig() *Config {
 	pflag.Parse()
 
 	if err := env.Parse(config); err != nil {
-		log.Fatalf(err.Error())
+		log.Fatalf("Error with parsing config: %s", err.Error())
 	}
 
 	log.Printf("server address: %s", config.ServerAddress)

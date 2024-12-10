@@ -2,6 +2,7 @@ package server
 
 import (
 	"fmt"
+
 	"github.com/PrEvIeS/url_short/internal/config"
 	"github.com/PrEvIeS/url_short/internal/handler"
 	"github.com/gin-gonic/gin"
