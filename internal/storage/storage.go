@@ -19,6 +19,6 @@ func (s *InMemoryStorage) Set(key, value string) error {
 }
 
 func (s *InMemoryStorage) Get(key string) (string, bool) {
-	value, exists := s.data[key]
-	return value, exists
+	value, ok := s.data[key]
+	return value, ok
 }

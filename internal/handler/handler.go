@@ -31,13 +31,15 @@ func (h *ShortenerHandler) HandlePost(c *gin.Context) {
 	buf := new(bytes.Buffer)
 	_, err := buf.ReadFrom(requestBody)
 	if err != nil {
+		c.String(http.StatusBadRequest, "Incorrect request")
 		return
 	}
 	originalURL := buf.String()
 
 	shortID, err := h.service.CreateShortURL(originalURL)
 	if err != nil {
-		c.String(http.StatusInternalServerError, "Failed to create short URL")
+		c.String(http.StatusBadRequest, "Failed to create short URL")
+		log.Printf("Failed to create short URL: %s", err.Error())
 		return
 	}
 

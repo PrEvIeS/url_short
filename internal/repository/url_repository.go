@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"log"
 
-	"github.com/PrEvIeS/url_short/internal/pkg/storage"
+	"github.com/PrEvIeS/url_short/internal/storage"
 )
 
 type URLRepository interface {

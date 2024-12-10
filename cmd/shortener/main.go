@@ -1,9 +1,12 @@
 package main
 
 import (
+	"log"
+
+	"github.com/PrEvIeS/url_short/internal/storage"
+
 	"github.com/PrEvIeS/url_short/internal/config"
 	"github.com/PrEvIeS/url_short/internal/handler"
-	"github.com/PrEvIeS/url_short/internal/pkg/storage"
 	"github.com/PrEvIeS/url_short/internal/repository"
 	"github.com/PrEvIeS/url_short/internal/server"
 	"github.com/PrEvIeS/url_short/internal/service"
@@ -22,5 +25,8 @@ func main() {
 
 	app := server.NewServer(shortenerHandler, cfg)
 
-	app.Run(cfg.ServerAddress)
+	err := app.Run(cfg.ServerAddress)
+	if err != nil {
+		log.Fatal(err)
+	}
 }

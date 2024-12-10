@@ -4,7 +4,6 @@ import (
 	"log"
 
 	"github.com/caarlos0/env/v11"
-
 	"github.com/spf13/pflag"
 )
 
@@ -31,17 +30,10 @@ func NewConfig() *Config {
 		"Базовый адрес результирующего сокращённого URL",
 	)
 
-	if config.ServerAddress == "" {
-		config.ServerAddress = "localhost:8080"
-	}
-	if config.BaseURL == "" {
-		config.BaseURL = "http://localhost:8080"
-	}
-
 	pflag.Parse()
 
 	if err := env.Parse(config); err != nil {
-		log.Println(err)
+		log.Fatalf(err.Error())
 	}
 
 	log.Printf("server address: %s", config.ServerAddress)

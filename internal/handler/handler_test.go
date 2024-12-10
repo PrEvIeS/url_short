@@ -6,11 +6,12 @@ import (
 	"net/http/httptest"
 	"testing"
 
+	"github.com/PrEvIeS/url_short/internal/storage"
+
 	"github.com/PrEvIeS/url_short/internal/config"
 	"github.com/PrEvIeS/url_short/internal/repository"
 	"github.com/PrEvIeS/url_short/internal/service"
 
-	"github.com/PrEvIeS/url_short/internal/pkg/storage"
 	"github.com/gin-gonic/gin"
 )
 
@@ -41,6 +42,7 @@ func TestHandlePost(t *testing.T) {
 
 	if rec.Code != http.StatusCreated {
 		t.Errorf("Expected status %d; got %d", http.StatusCreated, rec.Code)
+		return
 	}
 
 	expectedShortURL := cfg.BaseURL + "/"

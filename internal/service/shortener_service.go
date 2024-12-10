@@ -18,15 +18,28 @@ func NewShortenerService(repo repository.URLRepository) *ShortenerService {
 }
 
 func (s *ShortenerService) CreateShortURL(originalURL string) (string, error) {
-	shortID := generateShortID(8)
-	log.Printf("Generated short ID: %s", shortID)
+	idLength := 8
+	var shortID string
+	var err error
+	for {
+		shortID, err = generateShortID(idLength)
+		if err != nil {
+			return "", err
+		}
+		_, existErr := s.repo.GetURL(shortID)
 
-	err := s.repo.SaveURL(shortID, originalURL)
-	if err != nil {
-		log.Printf("Failed to save URL: %v", err)
-		return "", fmt.Errorf("failed to save URL: %w", err)
+		if existErr == nil {
+			continue
+		}
+
+		log.Printf("Generated short ID: %s", shortID)
+
+		err = s.repo.SaveURL(shortID, originalURL)
+		if err != nil {
+			return "", fmt.Errorf("failed to save URL: %w", err)
+		}
+		break
 	}
-
 	log.Printf("Saved URL: %s with short ID: %s", originalURL, shortID)
 	return shortID, nil
 }
@@ -40,11 +53,11 @@ func (s *ShortenerService) GetOriginalURL(shortID string) (string, error) {
 	return url, nil
 }
 
-func generateShortID(length int) string {
+func generateShortID(length int) (string, error) {
 	bytes := make([]byte, length)
 	_, err := rand.Read(bytes)
 	if err != nil {
-		panic(err)
+		return "", fmt.Errorf("failed to generate short ID: %w", err)
 	}
-	return base64.URLEncoding.EncodeToString(bytes)[:length]
+	return base64.URLEncoding.EncodeToString(bytes)[:length], nil
 }
