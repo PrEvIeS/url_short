@@ -13,8 +13,10 @@ import (
 )
 
 func main() {
-	cfg := config.NewConfig()
-
+	cfg, err := config.NewConfig()
+	if err != nil {
+		log.Fatal(err)
+	}
 	urlStorage := storage.NewInMemoryStorage()
 
 	urlRepo := repository.NewURLRepository(urlStorage)
@@ -25,7 +27,7 @@ func main() {
 
 	app := server.NewServer(shortenerHandler, cfg)
 
-	err := app.Run(cfg.ServerAddress)
+	err = app.Run(cfg.ServerAddress)
 	if err != nil {
 		log.Fatal(err)
 	}

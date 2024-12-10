@@ -24,21 +24,21 @@ func (h *ShortenerHandler) HandlePost(c *gin.Context) {
 	requestBody := c.Request.Body
 
 	if requestBody == nil {
-		c.String(http.StatusBadRequest, "URL is required")
+		c.String(http.StatusBadRequest, http.StatusText(http.StatusBadRequest))
 		return
 	}
 
 	buf := new(bytes.Buffer)
 	_, err := buf.ReadFrom(requestBody)
 	if err != nil {
-		c.String(http.StatusBadRequest, "Incorrect request")
+		c.String(http.StatusBadRequest, http.StatusText(http.StatusBadRequest))
 		return
 	}
 	originalURL := buf.String()
 
 	shortID, err := h.service.CreateShortURL(originalURL)
 	if err != nil {
-		c.String(http.StatusBadRequest, "Failed to create short URL")
+		c.String(http.StatusInternalServerError, http.StatusText(http.StatusInternalServerError))
 		log.Printf("Failed to create short URL: %s", err.Error())
 		return
 	}
@@ -54,7 +54,7 @@ func (h *ShortenerHandler) HandleGet(c *gin.Context) {
 
 	originalURL, err := h.service.GetOriginalURL(shortID)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Short URL not found"})
+		c.String(http.StatusBadRequest, http.StatusText(http.StatusBadRequest))
 		return
 	}
 

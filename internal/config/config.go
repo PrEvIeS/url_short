@@ -1,6 +1,7 @@
 package config
 
 import (
+	"fmt"
 	"log"
 
 	"github.com/caarlos0/env/v11"
@@ -12,7 +13,7 @@ type Config struct {
 	BaseURL       string `env:"BASE_URL"`
 }
 
-func NewConfig() *Config {
+func NewConfig() (*Config, error) {
 	config := &Config{}
 
 	pflag.StringVarP(
@@ -33,11 +34,11 @@ func NewConfig() *Config {
 	pflag.Parse()
 
 	if err := env.Parse(config); err != nil {
-		log.Fatalf("Error with parsing config: %s", err.Error())
+		return nil, fmt.Errorf("error while parsing environment variables: %w", err)
 	}
 
 	log.Printf("server address: %s", config.ServerAddress)
 	log.Printf("base url: %s", config.BaseURL)
 
-	return config
+	return config, nil
 }

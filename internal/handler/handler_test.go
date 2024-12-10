@@ -48,15 +48,18 @@ func TestHandlePost(t *testing.T) {
 	expectedShortURL := cfg.BaseURL + "/"
 	if !bytes.HasPrefix(rec.Body.Bytes(), []byte(expectedShortURL)) {
 		t.Errorf("Expected body to start with %s; got %s", expectedShortURL, rec.Body.String())
+		return
 	}
 
 	shortID := string(bytes.TrimPrefix(rec.Body.Bytes(), []byte(expectedShortURL)))
 	storedURL, exists := urlStorage.Get(shortID)
 	if !exists {
 		t.Errorf("Expected URL to be stored in storage, but it was not found")
+		return
 	}
 	if storedURL != originalURL {
 		t.Errorf("Expected stored URL to be %s; got %s", originalURL, storedURL)
+		return
 	}
 }
 
@@ -74,7 +77,8 @@ func TestHandleGet(t *testing.T) {
 	originalURL := "https://practicum.yandex.ru/"
 	err := urlStorage.Set(shortID, originalURL)
 	if err != nil {
-		t.Fatalf("Failed to set URL in storage: %v", err)
+		t.Errorf("Failed to set URL in storage: %v", err)
+		return
 	}
 
 	handler := NewShortenerHandler(shortenerService, cfg)
@@ -90,10 +94,12 @@ func TestHandleGet(t *testing.T) {
 
 	if rec.Code != http.StatusTemporaryRedirect {
 		t.Errorf("Expected status %d; got %d", http.StatusTemporaryRedirect, rec.Code)
+		return
 	}
 
 	location := rec.Header().Get("Location")
 	if location != originalURL {
 		t.Errorf("Expected Location header to be %s; got %s", originalURL, location)
+		return
 	}
 }
