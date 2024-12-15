@@ -4,29 +4,35 @@ import (
 	"errors"
 	"fmt"
 	"log"
-
-	"github.com/PrEvIeS/url_short/internal/storage"
+	"sync"
 )
 
+type Storage interface {
+	Set(key, value string) error
+	Get(key string) (string, bool)
+}
 type URLRepository interface {
 	SaveURL(shortID, originalURL string) error
 	GetURL(shortID string) (string, error)
 }
 
 type URLRepositoryImpl struct {
-	storage storage.Storage
+	storage Storage
 }
 
-func NewURLRepository(srg storage.Storage) *URLRepositoryImpl {
+func NewURLRepository(srg Storage) *URLRepositoryImpl {
 	return &URLRepositoryImpl{storage: srg}
 }
 
 func (r *URLRepositoryImpl) SaveURL(shortID, originalURL string) error {
+	var mutex sync.Mutex
+	mutex.Lock()
 	log.Printf("Saving URL: %s with short ID: %s", originalURL, shortID)
 	err := r.storage.Set(shortID, originalURL)
 	if err != nil {
 		return fmt.Errorf("saving URL: %w", err)
 	}
+	mutex.Unlock()
 	return nil
 }
 

@@ -21,7 +21,7 @@ func (s *ShortenerService) CreateShortURL(originalURL string) (string, error) {
 	idLength := 8
 	var shortID string
 	var err error
-	for {
+	for range 5 {
 		shortID, err = generateShortID(idLength)
 		if err != nil {
 			return "", err
