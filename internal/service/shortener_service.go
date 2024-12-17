@@ -3,6 +3,7 @@ package service
 import (
 	"crypto/rand"
 	"encoding/base64"
+	"errors"
 	"fmt"
 	"log"
 
@@ -41,7 +42,7 @@ func (s *ShortenerService) CreateShortURL(originalURL string) (string, error) {
 		break
 	}
 	if shortID == "" {
-		return "", fmt.Errorf("failed to generate short ID")
+		return "", errors.New("failed to generate short ID")
 	}
 	log.Printf("Saved URL: %s with short ID: %s", originalURL, shortID)
 	return shortID, nil
