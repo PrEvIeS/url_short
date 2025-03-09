@@ -84,14 +84,14 @@ func (h ShortenerHandler) HandleJSONPost(c *gin.Context) {
 		return
 	}
 
-	var request model.CreateShortUrl
+	var request model.CreateShortURL
 	if err := json.NewDecoder(c.Request.Body).Decode(&request); err != nil {
 		h.logger.Error("Failed to decode JSON", zap.Error(err))
 		c.String(http.StatusBadRequest, "Invalid JSON format")
 		return
 	}
 
-	originalURL := request.Url
+	originalURL := request.URL
 
 	shortID, err := h.service.CreateShortURL(originalURL)
 	if err != nil {
@@ -101,7 +101,7 @@ func (h ShortenerHandler) HandleJSONPost(c *gin.Context) {
 	}
 
 	shortURL := h.config.BaseURL + "/" + shortID
-	result := model.UrlResponse{Result: shortURL}
+	result := model.URLResponse{Result: shortURL}
 
 	c.JSON(http.StatusCreated, result)
 
