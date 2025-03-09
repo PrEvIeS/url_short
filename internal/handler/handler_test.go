@@ -6,107 +6,95 @@ import (
 	"net/http/httptest"
 	"testing"
 
+	"github.com/gin-gonic/gin"
+	"github.com/stretchr/testify/assert"
+	"go.uber.org/zap"
+
 	"github.com/PrEvIeS/url_short/internal/config"
 	"github.com/PrEvIeS/url_short/internal/repository"
 	"github.com/PrEvIeS/url_short/internal/service"
 	"github.com/PrEvIeS/url_short/internal/storage"
-	"github.com/gin-gonic/gin"
-	"go.uber.org/zap"
 )
 
-func TestHandlePost(t *testing.T) {
-	// Инициализация конфигурации
-	cfg := &config.Config{
-		ServerAddress: "localhost:8080",
-		BaseURL:       "http://localhost:8080",
-	}
-
-	// Инициализация хранилища и сервиса
-	urlStorage := storage.NewInMemoryStorage()
-	urlRepo := repository.NewURLRepository(urlStorage)
-	shortenerService := service.NewShortenerService(urlRepo)
-
-	// Создаем логгер
+func setupTestHandler() (*ShortenerHandler, *gin.Engine) {
 	logger := zap.NewNop()
+	cfg := &config.Config{BaseURL: "http://test"}
+	store := storage.NewInMemoryStorage()
+	repo := repository.NewURLRepository(store, logger)
+	svc := service.NewShortenerService(repo, logger)
+	handler := NewShortenerHandler(svc, cfg, logger)
 
-	// Передаем логгер в NewShortenerHandler
-	handler := NewShortenerHandler(shortenerService, cfg, logger)
+	router := gin.Default()
+	router.POST("/", handler.HandlePost)
+	router.GET("/:shortID", handler.HandleGet)
+	router.POST("/api/shorten", handler.HandleJSONPost)
 
-	originalURL := "http://dehoy.ru/n1ldm7e8bh88/gxn0xloupjkjol/veghgaewpnuop"
-	reqBody := bytes.NewBufferString(originalURL)
-	req := httptest.NewRequest(http.MethodPost, "/", reqBody)
-	req.Header.Set("Content-Type", "text/plain")
-	rec := httptest.NewRecorder()
+	return handler, router
+}
 
-	c, _ := gin.CreateTestContext(rec)
-	c.Request = req
+func TestHandlePost(t *testing.T) {
+	_, router := setupTestHandler()
 
-	handler.HandlePost(c)
+	t.Run("Valid URL", func(t *testing.T) {
+		body := bytes.NewBufferString("https://example.com")
+		req := httptest.NewRequest(http.MethodPost, "/", body)
+		req.Header.Set("Content-Type", "text/plain")
 
-	if rec.Code != http.StatusCreated {
-		t.Errorf("Expected status %d; got %d", http.StatusCreated, rec.Code)
-		return
-	}
+		rec := httptest.NewRecorder()
+		router.ServeHTTP(rec, req)
 
-	expectedShortURL := cfg.BaseURL + "/"
-	if !bytes.HasPrefix(rec.Body.Bytes(), []byte(expectedShortURL)) {
-		t.Errorf("Expected body to start with %s; got %s", expectedShortURL, rec.Body.String())
-		return
-	}
+		assert.Equal(t, http.StatusCreated, rec.Code)
+		assert.Contains(t, rec.Body.String(), "http://test/")
+	})
 
-	shortID := string(bytes.TrimPrefix(rec.Body.Bytes(), []byte(expectedShortURL)))
-	storedURL, exists := urlStorage.Get(shortID)
-	if !exists {
-		t.Errorf("Expected URL to be stored in storage, but it was not found")
-		return
-	}
-	if storedURL != originalURL {
-		t.Errorf("Expected stored URL to be %s; got %s", originalURL, storedURL)
-		return
-	}
+	t.Run("Empty Body", func(t *testing.T) {
+		req := httptest.NewRequest(http.MethodPost, "/", http.NoBody)
+		rec := httptest.NewRecorder()
+
+		router.ServeHTTP(rec, req)
+		assert.Equal(t, http.StatusBadRequest, rec.Code)
+	})
+}
+
+func TestHandleJSONPost(t *testing.T) {
+	_, router := setupTestHandler()
+
+	t.Run("Valid JSON", func(t *testing.T) {
+		body := bytes.NewBufferString(`{"url":"https://json.example.com"}`)
+		req := httptest.NewRequest(http.MethodPost, "/api/shorten", body)
+		req.Header.Set("Content-Type", "application/json")
+
+		rec := httptest.NewRecorder()
+		router.ServeHTTP(rec, req)
+
+		assert.Equal(t, http.StatusCreated, rec.Code)
+		assert.JSONEq(t, `{"result":"http://test/edVPg3ks"}`, rec.Body.String())
+	})
 }
 
 func TestHandleGet(t *testing.T) {
-	cfg := &config.Config{
-		ServerAddress: "localhost:8080",
-		BaseURL:       "http://localhost:8080",
-	}
+	handler, router := setupTestHandler()
 
-	urlStorage := storage.NewInMemoryStorage()
-	urlRepo := repository.NewURLRepository(urlStorage)
-	shortenerService := service.NewShortenerService(urlRepo)
-
-	shortID := "pO92GVXi"
-	originalURL := "https://practicum.yandex.ru/"
-	err := urlStorage.Set(shortID, originalURL)
+	// Сначала создаем тестовую запись
+	_, err := handler.service.CreateShortURL("https://redirect.example.com")
 	if err != nil {
-		t.Errorf("Failed to set URL in storage: %v", err)
 		return
 	}
 
-	// Создаем логгер
-	logger := zap.NewNop()
+	t.Run("Valid Short URL", func(t *testing.T) {
+		req := httptest.NewRequest(http.MethodGet, "/edVPg3ks", http.NoBody)
+		rec := httptest.NewRecorder()
 
-	// Передаем логгер в NewShortenerHandler
-	handler := NewShortenerHandler(shortenerService, cfg, logger)
+		router.ServeHTTP(rec, req)
+		assert.Equal(t, http.StatusTemporaryRedirect, rec.Code)
+		assert.Equal(t, "https://redirect.example.com", rec.Header().Get("Location"))
+	})
 
-	req := httptest.NewRequest(http.MethodGet, "/"+shortID, http.NoBody)
-	rec := httptest.NewRecorder()
+	t.Run("Invalid Short URL", func(t *testing.T) {
+		req := httptest.NewRequest(http.MethodGet, "/invalid", http.NoBody)
+		rec := httptest.NewRecorder()
 
-	c, _ := gin.CreateTestContext(rec)
-	c.Request = req
-	c.Params = gin.Params{gin.Param{Key: "shortID", Value: shortID}}
-
-	handler.HandleGet(c)
-
-	if rec.Code != http.StatusTemporaryRedirect {
-		t.Errorf("Expected status %d; got %d", http.StatusTemporaryRedirect, rec.Code)
-		return
-	}
-
-	location := rec.Header().Get("Location")
-	if location != originalURL {
-		t.Errorf("Expected Location header to be %s; got %s", originalURL, location)
-		return
-	}
+		router.ServeHTTP(rec, req)
+		assert.Equal(t, http.StatusBadRequest, rec.Code)
+	})
 }

@@ -13,37 +13,45 @@ import (
 	"github.com/PrEvIeS/url_short/internal/storage"
 )
 
-var logger *zap.Logger
-
-func init() {
-	var err error
-	logger, err = zap.NewProduction()
-	if err != nil {
-		log.Fatal("Failed to create logger:", err)
-	}
-	defer func() {
-		_ = logger.Sync() // Игнорируем ошибку Sync()
-	}()
-}
-
 func main() {
+	logger, _ := zap.NewProduction()
+	defer func() {
+		if err := logger.Sync(); err != nil {
+			log.Printf("Error syncing logger: %v", err)
+		}
+	}()
+
 	cfg, err := config.NewConfig()
 	if err != nil {
 		logger.Fatal("Failed to load config", zap.Error(err))
 	}
 
-	urlStorage := storage.NewInMemoryStorage()
-	urlRepo := repository.NewURLRepository(urlStorage)
-	shortenerService := service.NewShortenerService(urlRepo)
+	// Инициализация хранилища
+	var urlStorage storage.Storage
+	if cfg.FileStoragePath != "" {
+		urlStorage, err = storage.NewFileStorage(cfg.FileStoragePath)
+		if err != nil {
+			logger.Fatal("Failed to initialize file storage",
+				zap.String("path", cfg.FileStoragePath),
+				zap.Error(err),
+			)
+		}
+	} else {
+		urlStorage = storage.NewInMemoryStorage()
+		logger.Info("Using in-memory storage")
+	}
 
-	// Передаем логгер в NewShortenerHandler
+	// Создание цепочки зависимостей
+	urlRepo := repository.NewURLRepository(urlStorage, logger)
+	shortenerService := service.NewShortenerService(urlRepo, logger)
 	shortenerHandler := handler.NewShortenerHandler(shortenerService, cfg, logger)
 
+	// Запуск сервера
 	app := server.NewServer(shortenerHandler, cfg, logger)
-
-	err = app.Run(cfg.ServerAddress)
-	if err != nil {
-		logger.Fatal("Failed to start server", zap.Error(err))
+	if err := app.Run(cfg.ServerAddress); err != nil {
+		logger.Fatal("Server failed to start",
+			zap.String("address", cfg.ServerAddress),
+			zap.Error(err),
+		)
 	}
-	logger.Info("Application started successfully")
 }
