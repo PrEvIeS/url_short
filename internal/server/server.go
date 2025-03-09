@@ -34,7 +34,7 @@ func (s *Server) Run(addr string) error {
 	// Регистрируем обработчики
 	r.POST("/", s.handler.HandlePost)
 	r.GET("/:shortID", s.handler.HandleGet)
-
+	r.POST("/api/shorten", s.handler.HandleJSONPost)
 	// Запускаем сервер
 	err := r.Run(addr)
 	if err != nil {

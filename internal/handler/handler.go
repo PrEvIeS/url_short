@@ -2,6 +2,8 @@ package handler
 
 import (
 	"bytes"
+	"encoding/json"
+	"github.com/PrEvIeS/url_short/internal/model"
 	"net/http"
 
 	"github.com/PrEvIeS/url_short/internal/config"
@@ -74,4 +76,34 @@ func (h *ShortenerHandler) HandleGet(c *gin.Context) {
 	c.Redirect(http.StatusTemporaryRedirect, originalURL)
 
 	h.logger.Info("Expanded short URL", zap.String(shortIDKey, shortID)) // Используем константу
+}
+func (h ShortenerHandler) HandleJSONPost(c *gin.Context) {
+	if c.Request.Body == nil {
+		h.logger.Error("Request body is nil")
+		c.String(http.StatusBadRequest, http.StatusText(http.StatusBadRequest))
+		return
+	}
+
+	var request model.CreateShortUrl
+	if err := json.NewDecoder(c.Request.Body).Decode(&request); err != nil {
+		h.logger.Error("Failed to decode JSON", zap.Error(err))
+		c.String(http.StatusBadRequest, "Invalid JSON format")
+		return
+	}
+
+	originalURL := request.Url
+
+	shortID, err := h.service.CreateShortURL(originalURL)
+	if err != nil {
+		h.logger.Error("Failed to create short URL", zap.Error(err))
+		c.String(http.StatusInternalServerError, http.StatusText(http.StatusInternalServerError))
+		return
+	}
+
+	shortURL := h.config.BaseURL + "/" + shortID
+	result := model.UrlResponse{Result: shortURL}
+
+	c.JSON(http.StatusCreated, result)
+
+	h.logger.Info("Created short URL", zap.String("short_id", shortID))
 }
