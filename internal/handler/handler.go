@@ -3,8 +3,9 @@ package handler
 import (
 	"bytes"
 	"encoding/json"
-	"github.com/PrEvIeS/url_short/internal/model"
 	"net/http"
+
+	"github.com/PrEvIeS/url_short/internal/model"
 
 	"github.com/PrEvIeS/url_short/internal/config"
 	"github.com/PrEvIeS/url_short/internal/service"
