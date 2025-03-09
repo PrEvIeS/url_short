@@ -6,13 +6,12 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	"github.com/PrEvIeS/url_short/internal/storage"
-
 	"github.com/PrEvIeS/url_short/internal/config"
 	"github.com/PrEvIeS/url_short/internal/repository"
 	"github.com/PrEvIeS/url_short/internal/service"
-
+	"github.com/PrEvIeS/url_short/internal/storage"
 	"github.com/gin-gonic/gin"
+	"go.uber.org/zap"
 )
 
 func TestHandlePost(t *testing.T) {
@@ -27,7 +26,11 @@ func TestHandlePost(t *testing.T) {
 	urlRepo := repository.NewURLRepository(urlStorage)
 	shortenerService := service.NewShortenerService(urlRepo)
 
-	handler := NewShortenerHandler(shortenerService, cfg)
+	// Создаем логгер
+	logger := zap.NewNop()
+
+	// Передаем логгер в NewShortenerHandler
+	handler := NewShortenerHandler(shortenerService, cfg, logger)
 
 	originalURL := "http://dehoy.ru/n1ldm7e8bh88/gxn0xloupjkjol/veghgaewpnuop"
 	reqBody := bytes.NewBufferString(originalURL)
@@ -81,7 +84,11 @@ func TestHandleGet(t *testing.T) {
 		return
 	}
 
-	handler := NewShortenerHandler(shortenerService, cfg)
+	// Создаем логгер
+	logger := zap.NewNop()
+
+	// Передаем логгер в NewShortenerHandler
+	handler := NewShortenerHandler(shortenerService, cfg, logger)
 
 	req := httptest.NewRequest(http.MethodGet, "/"+shortID, http.NoBody)
 	rec := httptest.NewRecorder()

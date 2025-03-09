@@ -1,11 +1,12 @@
 module github.com/PrEvIeS/url_short
 
-go 1.22.10
+go 1.23
 
 require (
 	github.com/caarlos0/env/v11 v11.2.2
 	github.com/gin-gonic/gin v1.10.0
 	github.com/spf13/pflag v1.0.5
+	go.uber.org/zap v1.27.0
 )
 
 require (
@@ -28,6 +29,7 @@ require (
 	github.com/pelletier/go-toml/v2 v2.2.3 // indirect
 	github.com/twitchyliquid64/golang-asm v0.15.1 // indirect
 	github.com/ugorji/go/codec v1.2.12 // indirect
+	go.uber.org/multierr v1.11.0 // indirect
 	golang.org/x/arch v0.12.0 // indirect
 	golang.org/x/crypto v0.30.0 // indirect
 	golang.org/x/net v0.32.0 // indirect
