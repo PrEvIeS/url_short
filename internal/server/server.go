@@ -28,14 +28,13 @@ func (s *Server) Run(addr string) error {
 	gin.SetMode(gin.ReleaseMode)
 	r := gin.Default()
 
-	// Добавляем middleware Logger
 	r.Use(middleware.Logger(s.logger))
+	r.Use(middleware.GzipMiddleware())
 
-	// Регистрируем обработчики
 	r.POST("/", s.handler.HandlePost)
 	r.GET("/:shortID", s.handler.HandleGet)
 	r.POST("/api/shorten", s.handler.HandleJSONPost)
-	// Запускаем сервер
+
 	err := r.Run(addr)
 	if err != nil {
 		return fmt.Errorf("could not start server: %w", err)
