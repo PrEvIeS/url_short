@@ -7,15 +7,21 @@ import (
 	"fmt"
 	"log"
 
+	"go.uber.org/zap"
+
 	"github.com/PrEvIeS/url_short/internal/repository"
 )
 
 type ShortenerService struct {
-	repo repository.URLRepository
+	repo   repository.URLRepository
+	logger *zap.Logger
 }
 
-func NewShortenerService(repo repository.URLRepository) *ShortenerService {
-	return &ShortenerService{repo: repo}
+func NewShortenerService(repo repository.URLRepository, logger *zap.Logger) *ShortenerService {
+	return &ShortenerService{
+		repo:   repo,
+		logger: logger,
+	}
 }
 
 func (s *ShortenerService) CreateShortURL(originalURL string) (string, error) {
